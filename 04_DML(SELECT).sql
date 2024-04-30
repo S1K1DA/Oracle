@@ -1,0 +1,259 @@
+SELECT
+	DEPARTMENT_ID
+FROM
+	EMPLOYEES e
+WHERE
+	FIRST_NAME = 'Donald';
+
+
+-- 50 출력
+-- Donald랑 같은 부서의 직원들의 이름 조회
+SELECT
+	FIRST_NAME
+FROM
+	EMPLOYEES e
+WHERE
+	DEPARTMENT_ID = 50;
+
+
+-- 서브쿼리
+SELECT
+	FIRST_NAME
+FROM
+	EMPLOYEES e
+WHERE
+	DEPARTMENT_ID = (
+	SELECT
+		DEPARTMENT_ID
+	FROM
+		EMPLOYEES e2
+	WHERE
+		FIRST_NAME = 'Donald');
+	
+	
+-- 부서 아이디가 30인 직원들의 평균 급여보다 높은 직원들의 이름 조회
+SELECT
+	FIRST_NAME
+FROM
+	EMPLOYEES e
+WHERE
+	SALARY > (
+	SELECT
+		AVG(SALARY)
+	FROM
+		EMPLOYEES e2
+	WHERE
+		DEPARTMENT_ID = 30);
+-- 4150
+	
+	
+-- 가장 높은 월급을 받는 직원의 이름 조회
+SELECT
+	FIRST_NAME
+FROM
+	EMPLOYEES e
+WHERE
+	SALARY = (
+	SELECT
+		MAX(SALARY)
+	FROM
+		EMPLOYEES e2);
+-- 24000
+	
+	
+-- 입사일이 가장 빠른 직원의 이름
+SELECT
+	FIRST_NAME
+FROM
+	EMPLOYEES e
+WHERE
+	HIRE_DATE = (
+	SELECT
+		MIN(HIRE_DATE)
+	FROM
+		EMPLOYEES e2);
+	
+	
+-- 가장 낮은 LOCATION_ID를 가진 도시 조회
+SELECT
+	CITY
+FROM
+	LOCATIONS l
+WHERE
+	LOCATION_ID = (
+	SELECT
+		MIN(LOCATION_ID)
+	FROM
+		LOCATIONS l2);
+	
+	
+-- 가장 높은 보너스를 받는 직원의 이름 조회
+SELECT
+	FIRST_NAME
+FROM
+	EMPLOYEES e
+WHERE
+	COMMISSION_PCT = (
+	SELECT
+		MAX(COMMISSION_PCT)
+	FROM
+		EMPLOYEES e2);
+	
+	
+--1. 사수 번호(MANAGER_ID)가 가장 낮은 직원의 이름과 핸드폰 번호를 출력하세요.
+SELECT
+	FIRST_NAME,
+	PHONE_NUMBER
+FROM
+	EMPLOYEES e
+WHERE
+	MANAGER_ID = (
+	SELECT
+		MIN(MANAGER_ID)
+	FROM
+		EMPLOYEES e2);
+	
+	
+--2. 사번(EMPLOYEE_ID)가 가장 높은 직원의 이름과 사번을 출력하세요.
+SELECT
+	FIRST_NAME,
+	EMPLOYEE_ID
+FROM
+	EMPLOYEES e
+WHERE
+	EMPLOYEE_ID = (
+	SELECT
+		MAX(EMPLOYEE_ID)
+	FROM
+		EMPLOYEES e2);
+	
+	
+--3. LOCATIONS 테이블에서 COUNTRY_ID가 가장 많은 도시(CITY)의 이름을 출력하세요.
+SELECT
+	CITY
+FROM
+	LOCATIONS l
+WHERE
+	COUNTRY_ID = (
+	SELECT
+		COUNTRY_ID
+	FROM
+		LOCATIONS l2
+	GROUP BY
+		l2.COUNTRY_ID
+	ORDER BY
+		COUNT(COUNTRY_ID) DESC
+	                FETCH FIRST 1 ROW ONLY);
+	               
+	               
+-- 부서별 가장 급여가 낮은 직원들의 정보 조회	               
+SELECT
+	*
+FROM
+	EMPLOYEES e
+WHERE
+	SALARY IN (
+	SELECT
+		MIN(SALARY)
+	FROM
+		EMPLOYEES e
+	GROUP BY
+		DEPARTMENT_ID);
+	
+	
+-- 부서별 가장 낮은 급여
+SELECT
+	MIN(SALARY)
+FROM
+	EMPLOYEES e
+GROUP BY
+	DEPARTMENT_ID;
+
+SELECT
+	*
+FROM
+	EMPLOYEES e
+WHERE
+	SALARY > ANY (
+	SELECT
+		MIN(SALARY)
+	FROM
+		EMPLOYEES e2
+	GROUP BY
+		DEPARTMENT_ID);
+	
+	
+--1. 직원이 가장 많은 부서의 부서명과 인원수를 조회하세요.
+SELECT
+	d.DEPARTMENT_NAME,
+	COUNT(*)
+FROM
+	DEPARTMENTS d
+JOIN EMPLOYEES e ON
+	d.DEPARTMENT_ID = e.DEPARTMENT_ID
+GROUP BY
+	d.DEPARTMENT_NAME
+HAVING
+	COUNT(*) = (
+	SELECT
+		MAX(count(*))
+	FROM
+		EMPLOYEES e2
+	GROUP BY
+		DEPARTMENT_ID);
+	
+	
+--2. Luis 또는 Pat과 같은 부서인 직원들을 조회하세요.
+-- 사번(EMPLOYE_ID), 이름(FIRST_NAME), 부서번호(DEPARTMENT_ID)를 조회하세요.
+SELECT
+	EMPLOYEE_ID,
+	FIRST_NAME,
+	DEPARTMENT_ID
+FROM
+	EMPLOYEES e
+WHERE
+	DEPARTMENT_ID IN (
+	SELECT
+		DEPARTMENT_ID
+	FROM
+		EMPLOYEES
+	WHERE
+		FIRST_NAME = 'Pat'
+		OR FIRST_NAME = 'Luis');
+	
+	
+--3. 직무명 FI_ACCOUNT의 평균 월급보다 많이 받는 직원들의 이름과 월급을 조회하세요.
+SELECT
+	FIRST_NAME,
+	SALARY
+FROM
+	EMPLOYEES e
+WHERE
+	SALARY > (
+	SELECT
+		AVG(SALARY)
+	FROM
+		EMPLOYEES e2
+	WHERE
+		JOB_ID = 'FI_ACCOUNT');
+	
+	
+--4. 보너스를 받는 직원들의 평균 월급보다 더 높은 월급을 가진 직원들의 이름과 월급을
+--조회하세요.
+SELECT
+	FIRST_NAME,
+	SALARY
+FROM
+	EMPLOYEES e
+WHERE
+	SALARY > (
+	SELECT
+		AVG(SALARY)
+	FROM
+		EMPLOYEES e2
+	WHERE
+		COMMISSION_PCT IS NOT NULL);
+				
+	                 
+
+
